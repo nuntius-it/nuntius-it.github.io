@@ -11,15 +11,17 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         # I runner Intel (macos-13) non esistono più: la build per Mac Intel è
-        # cross-compilata sul runner arm64, con il Chrome mac-x64 scaricato a parte.
+        # cross-compilata sul runner arm64, con il Chrome Intel ("mac" per
+        # @puppeteer/browsers) scaricato a parte.
         include:
           - os: macos-latest
             build_args: --mac --arm64
           - os: macos-latest
             build_args: --mac --x64
-            chrome_platform: mac-x64
+            chrome_platform: mac
           - os: windows-latest
             build_args: --win
     runs-on: ${{ matrix.os }}
