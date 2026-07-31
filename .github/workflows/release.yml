@@ -12,8 +12,16 @@ jobs:
   build:
     strategy:
       matrix:
-        # macos-latest = Apple Silicon (arm64), macos-13 = Intel (x64)
-        os: [macos-latest, macos-13, windows-latest]
+        # I runner Intel (macos-13) non esistono più: la build per Mac Intel è
+        # cross-compilata sul runner arm64, con il Chrome mac-x64 scaricato a parte.
+        include:
+          - os: macos-latest
+            build_args: --mac --arm64
+          - os: macos-latest
+            build_args: --mac --x64
+            chrome_platform: mac-x64
+          - os: windows-latest
+            build_args: --win
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -27,11 +35,16 @@ jobs:
           cache-dependency-path: sender/package-lock.json
       # Chrome di puppeteer va scaricato dentro il progetto, così electron-builder
       # lo include nell'installer (extraResources): sui computer delle parrocchie
-      # non esiste la cache ~/.cache/puppeteer.
+      # non esiste la cache ~/.cache/puppeteer. Per la build cross-arch il download
+      # automatico (che seguirebbe l'arch del runner) è disattivato e sostituito
+      # dal passo esplicito con @puppeteer/browsers.
       - run: npm ci
         env:
           PUPPETEER_CACHE_DIR: ${{ github.workspace }}/sender/chrome-cache
           PUPPETEER_SKIP_CHROME_HEADLESS_SHELL_DOWNLOAD: "true"
-      - run: npx electron-builder --publish always
+          PUPPETEER_SKIP_DOWNLOAD: ${{ matrix.chrome_platform && 'true' || '' }}
+      - if: matrix.chrome_platform
+        run: npx @puppeteer/browsers install chrome@stable --platform ${{ matrix.chrome_platform }} --path ${{ github.workspace }}/sender/chrome-cache
+      - run: npx electron-builder ${{ matrix.build_args }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
