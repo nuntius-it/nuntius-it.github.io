@@ -19,6 +19,7 @@ function send(canale, payload) {
 
 function log(msg) {
   const ts = new Date().toLocaleTimeString("it-IT");
+  console.log(`[${ts}] ${msg}`);
   send("log", `[${ts}] ${msg}`);
 }
 
