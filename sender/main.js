@@ -66,13 +66,39 @@ async function nomeParrocchia() {
 
 // ---------- WhatsApp ----------
 
+// Nell'app impacchettata Chrome è incluso come risorsa in chrome-cache/ (vedi
+// electron-builder.yml e release.yml): puppeteer non può usare ~/.cache/puppeteer,
+// che sul computer dell'utente non esiste.
+function trovaChromeIncluso() {
+  if (!app.isPackaged) return undefined;
+  const base = path.join(process.resourcesPath, "chrome-cache");
+  const eseguibile = process.platform === "win32" ? "chrome.exe" : "Google Chrome for Testing";
+  const pila = [base];
+  while (pila.length) {
+    const dir = pila.pop();
+    let voci;
+    try { voci = fs.readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const voce of voci) {
+      const p = path.join(dir, voce.name);
+      if (voce.isDirectory()) pila.push(p);
+      else if (voce.name === eseguibile) return p;
+    }
+  }
+  return null;
+}
+
 async function avviaWhatsApp() {
   if (waClient) return;
   const { Client, LocalAuth } = require("whatsapp-web.js");
+  const executablePath = trovaChromeIncluso();
+  if (executablePath === null) {
+    throw new Error("Chrome incluso nell'app non trovato: reinstallare Nuntius Sender.");
+  }
   waClient = new Client({
     authStrategy: new LocalAuth({ dataPath: path.join(app.getPath("userData"), "whatsapp") }),
     puppeteer: {
       headless: true,
+      executablePath,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions", "--no-first-run"],
     },
   });

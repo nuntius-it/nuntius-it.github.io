@@ -11,10 +11,15 @@ files:
 asarUnpack:
   - "**/node_modules/whatsapp-web.js/**"
   - "**/node_modules/puppeteer*/**"
+extraResources:
+  - from: chrome-cache
+    to: chrome-cache
 mac:
   target:
     - dmg
     - zip
+  # Il suffisso arch distingue il dmg per Mac Intel (x64) da quello Apple Silicon (arm64)
+  artifactName: "${productName}-${version}-${arch}.${ext}"
   category: public.app-category.productivity
 win:
   target:

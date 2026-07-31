@@ -12,7 +12,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        # macos-latest = Apple Silicon (arm64), macos-13 = Intel (x64)
+        os: [macos-latest, macos-13, windows-latest]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -24,7 +25,13 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: sender/package-lock.json
+      # Chrome di puppeteer va scaricato dentro il progetto, così electron-builder
+      # lo include nell'installer (extraResources): sui computer delle parrocchie
+      # non esiste la cache ~/.cache/puppeteer.
       - run: npm ci
+        env:
+          PUPPETEER_CACHE_DIR: ${{ github.workspace }}/sender/chrome-cache
+          PUPPETEER_SKIP_CHROME_HEADLESS_SHELL_DOWNLOAD: "true"
       - run: npx electron-builder --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
