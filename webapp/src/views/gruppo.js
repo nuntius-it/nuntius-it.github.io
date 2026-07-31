@@ -41,6 +41,9 @@ export async function viewGruppo(container, { id }) {
         </tbody>
       </table>
     </div>
+    <div class="actions">
+      <a class="btn" href="#/nuova-campagna">Prepara un annuncio per questo gruppo →</a>
+    </div>
     <p class="hint">Per aggiornare il gruppo, riesporta l'elenco da UNIO e
       <a href="#/importa">importalo di nuovo</a>: le persone già presenti vengono
       aggiornate, non duplicate.</p>

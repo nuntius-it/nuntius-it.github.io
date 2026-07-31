@@ -1,11 +1,27 @@
-# Nuntius Sender (Fase 3)
+# Nuntius Sender
 
-App desktop (Windows/Mac) per l'invio effettivo dei messaggi WhatsApp.
+App desktop (Windows/Mac) che invia gli annunci WhatsApp preparati con la web app
+Nuntius. Flusso guidato in 3 passi: accesso parrocchia → collegamento WhatsApp con
+QR (solo la prima volta) → invio degli annunci "pronti" con un click.
 
-Arriverà nella Fase 3 del piano di lavoro, riusando la logica già collaudata del
-progetto `whatsapp_bulk_sender` (whatsapp-web.js, autenticazione con QR, delay
-casuali tra gli invii), con queste differenze:
+L'invio usa whatsapp-web.js (delay casuali 6–12 s tra i messaggi); gli esiti
+(inviato / non su WhatsApp / errore) vengono scritti su Supabase e sono visibili
+nella web app.
 
-- le campagne arrivano da Supabase (stesso account della web app), non da `config.json`;
-- gli esiti degli invii vengono scritti su Supabase (tabella `invii`);
-- pacchettizzata con Electron: installer doppio click e wizard guidato al primo avvio.
+## Sviluppo
+
+```bash
+cd sender
+npm install
+npm start
+```
+
+## Pacchetti d'installazione
+
+Le release si creano con un tag `v*` (workflow `release.yml`): produce `.dmg` (Mac)
+e installer NSIS (Windows) e li pubblica nelle GitHub Releases, da cui
+`electron-updater` scarica gli aggiornamenti automatici.
+
+Nota: i pacchetti non sono firmati — al primo avvio macOS chiede
+tasto destro → "Apri", Windows "Ulteriori informazioni → Esegui comunque"
+(documentato nella guida utente).

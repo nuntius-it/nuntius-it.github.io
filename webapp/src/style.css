@@ -353,3 +353,67 @@ input:focus { outline: 2px solid var(--blu); border-color: var(--blu); }
   .nav { order: 3; width: 100%; justify-content: center; }
   .page-head h2 { font-size: 1.5rem; }
 }
+
+/* ---------- Annunci / campagne ---------- */
+
+select, textarea {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--bordo);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  background: #fff;
+  font-weight: 400;
+}
+select:focus, textarea:focus { outline: 2px solid var(--blu); border-color: var(--blu); }
+textarea { resize: vertical; min-height: 140px; }
+
+.compose {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  align-items: start;
+  margin-bottom: 1.2rem;
+}
+@media (max-width: 640px) { .compose { grid-template-columns: 1fr; } }
+
+.preview { display: flex; flex-direction: column; gap: 0.35rem; }
+.preview-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--blu);
+  font-weight: 700;
+}
+.bubble {
+  background: #e2f4d5; /* verde WhatsApp "in uscita" */
+  border-radius: 12px 12px 4px 12px;
+  padding: 0.8rem 1rem;
+  min-height: 3rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.preview--solo .bubble { max-width: 48ch; }
+
+.tpl-row { margin-bottom: 1rem; }
+.check-row { flex-direction: row; align-items: center; gap: 0.5rem; font-weight: 400; }
+
+.stats-row--col .stat { min-width: 140px; }
+
+.elenco { display: flex; flex-direction: column; gap: 0.6rem; }
+.riga {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid var(--bordo);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.riga:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgb(31 58 95 / 0.1); }
+.riga-meta { display: block; font-size: 0.85rem; opacity: 0.65; }

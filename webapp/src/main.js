@@ -8,6 +8,9 @@ import { viewGruppo } from "./views/gruppo.js";
 import { viewListe } from "./views/liste.js";
 import { viewNuovaLista } from "./views/nuovaLista.js";
 import { viewLista } from "./views/lista.js";
+import { viewCampagne } from "./views/campagne.js";
+import { viewNuovaCampagna } from "./views/nuovaCampagna.js";
+import { viewCampagna } from "./views/campagna.js";
 
 const app = document.querySelector("#app");
 
@@ -20,6 +23,9 @@ const routes = [
   { re: /^#\/liste$/, view: viewListe, nav: "liste" },
   { re: /^#\/nuova-lista$/, view: viewNuovaLista, nav: "liste" },
   { re: /^#\/lista\/([\w-]+)$/, view: viewLista, nav: "liste" },
+  { re: /^#\/campagne$/, view: viewCampagne, nav: "campagne" },
+  { re: /^#\/nuova-campagna$/, view: viewNuovaCampagna, nav: "campagne" },
+  { re: /^#\/campagna\/([\w-]+)$/, view: viewCampagna, nav: "campagne" },
 ];
 
 function matchRoute() {
@@ -42,6 +48,7 @@ function renderShell(nomeParrocchia, navAttiva) {
       <nav class="nav">
         <a href="#/" class="${navAttiva === "gruppi" ? "on" : ""}">Gruppi</a>
         <a href="#/liste" class="${navAttiva === "liste" ? "on" : ""}">Liste</a>
+        <a href="#/campagne" class="${navAttiva === "campagne" ? "on" : ""}">Annunci</a>
         <a href="#/importa" class="${navAttiva === "importa" ? "on" : ""}">Importa</a>
       </nav>
       <div class="who">

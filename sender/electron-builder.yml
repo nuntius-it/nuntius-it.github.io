@@ -1,0 +1,28 @@
+appId: io.github.nuntius-it.sender
+productName: Nuntius Sender
+directories:
+  output: dist
+files:
+  - main.js
+  - preload.cjs
+  - config.js
+  - renderer/**
+  - package.json
+asarUnpack:
+  - "**/node_modules/whatsapp-web.js/**"
+  - "**/node_modules/puppeteer*/**"
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.productivity
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: true
+  language: "1040"
+publish:
+  provider: github
+  owner: nuntius-it
+  repo: nuntius-it.github.io

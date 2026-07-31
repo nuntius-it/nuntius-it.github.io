@@ -38,8 +38,9 @@ export async function viewLista(container, { id }) {
         </tbody>
       </table>
     </div>
-    <p class="hint">Nella prossima versione, da qui creerai direttamente la campagna
-      di invio WhatsApp per questa lista.</p>
+    <div class="actions">
+      <a class="btn" href="#/nuova-campagna">Prepara un annuncio per questa lista →</a>
+    </div>
     <details class="danger-zone">
       <summary>Elimina lista</summary>
       <p>Le persone restano in archivio: viene eliminata solo la lista.</p>

@@ -193,3 +193,87 @@ export async function eliminaLista(id) {
   const { error } = await supabase.from("liste").delete().eq("id", id);
   if (error) throw error;
 }
+
+// ---------- Template ----------
+
+export async function fetchTemplates() {
+  const { data, error } = await supabase
+    .from("template")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function salvaTemplate(titolo, testo) {
+  const { parrocchiaId } = await getProfilo();
+  const { error } = await supabase
+    .from("template")
+    .insert({ parrocchia_id: parrocchiaId, titolo, testo });
+  if (error) throw error;
+}
+
+export async function eliminaTemplate(id) {
+  const { error } = await supabase.from("template").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// ---------- Campagne ----------
+
+export async function fetchCampagne() {
+  const { data, error } = await supabase
+    .from("campagne")
+    .select("id, titolo, stato, created_at, invii(count)")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data.map((c) => ({ ...c, destinatari: c.invii?.[0]?.count ?? 0 }));
+}
+
+export async function fetchCampagna(id) {
+  const [{ data: campagna, error: e1 }, { data: invii, error: e2 }] = await Promise.all([
+    supabase.from("campagne").select("*").eq("id", id).single(),
+    supabase
+      .from("invii")
+      .select("id, numero, esito, dettaglio, inviato_at, persone(cognome, nome)")
+      .eq("campagna_id", id)
+      .order("numero"),
+  ]);
+  if (e1) throw e1;
+  if (e2) throw e2;
+  return { campagna, invii };
+}
+
+export async function creaCampagna({ titolo, testo, destinatari, stato = "bozza" }) {
+  const { parrocchiaId } = await getProfilo();
+  const { data: campagna, error } = await supabase
+    .from("campagne")
+    .insert({ parrocchia_id: parrocchiaId, titolo, testo, stato })
+    .select()
+    .single();
+  if (error) throw error;
+  if (destinatari.length) {
+    const { error: e2 } = await supabase.from("invii").insert(
+      destinatari.map((d) => ({
+        campagna_id: campagna.id,
+        parrocchia_id: parrocchiaId,
+        persona_id: d.persona_id,
+        numero: d.numero,
+      }))
+    );
+    if (e2) throw e2;
+  }
+  return campagna;
+}
+
+export async function cambiaStatoCampagna(id, stato) {
+  const { error } = await supabase
+    .from("campagne")
+    .update({ stato, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function eliminaCampagna(id) {
+  const { error } = await supabase.from("campagne").delete().eq("id", id);
+  if (error) throw error;
+}

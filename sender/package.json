@@ -1,0 +1,25 @@
+{
+  "name": "nuntius-sender",
+  "productName": "Nuntius Sender",
+  "version": "0.1.0",
+  "description": "Invio degli annunci WhatsApp preparati con Nuntius",
+  "main": "main.js",
+  "author": "Nuntius",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "electron-updater": "^6.3.9",
+    "qrcode": "^1.5.4",
+    "whatsapp-web.js": "^1.26.1"
+  },
+  "devDependencies": {
+    "electron": "^37.10.3",
+    "electron-builder": "^25.1.8"
+  }
+}
