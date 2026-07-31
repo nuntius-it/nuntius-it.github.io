@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+.DS_Store
+*.log
+
+# Sessioni WhatsApp e cache del sender: mai nel repo
+sender/whatsapp-session/
+sender/.wwebjs_cache/
+
+# Dati reali (export gestionali, elenchi): mai nel repo
+*.xlsx
+dati/
