@@ -29,6 +29,8 @@ async function avvioWhatsApp() {
 
 window.nuntius.onQr((dataUrl) => {
   $("#qr").src = dataUrl;
+  $("#qr").hidden = false;
+  $("#qr-attesa").hidden = true;
 });
 
 window.nuntius.onWaPronto((pronto) => {
