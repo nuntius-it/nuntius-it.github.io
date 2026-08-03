@@ -87,6 +87,30 @@ function trovaChromeIncluso() {
   return null;
 }
 
+// Da fine luglio 2026 WhatsApp Web a volte non emette più l'evento "ready"
+// (wwebjs/whatsapp-web.js#201864): se dopo l'autenticazione lo stato risulta
+// CONNECTED per due controlli di fila, il collegamento viene considerato pronto.
+function avviaControlloPronto() {
+  let volteConnesso = 0;
+  const controllo = setInterval(async () => {
+    if (!waClient || waPronto) {
+      clearInterval(controllo);
+      return;
+    }
+    let stato = null;
+    try {
+      stato = await waClient.getState();
+    } catch {}
+    volteConnesso = stato === "CONNECTED" ? volteConnesso + 1 : 0;
+    if (volteConnesso >= 2) {
+      clearInterval(controllo);
+      waPronto = true;
+      send("wa-pronto", true);
+      log("WhatsApp pronto.");
+    }
+  }, 5000);
+}
+
 async function avviaWhatsApp() {
   if (waClient) return;
   const { Client, LocalAuth } = require("whatsapp-web.js");
@@ -111,11 +135,16 @@ async function avviaWhatsApp() {
   waClient.on("loading_screen", (percent, message) => {
     send("wa-caricamento", { percent: Number(percent) || 0, message });
   });
+  let autenticatoLoggato = false;
   waClient.on("authenticated", () => {
     send("wa-autenticato", true);
+    if (autenticatoLoggato) return;
+    autenticatoLoggato = true;
     log("WhatsApp autenticato.");
+    avviaControlloPronto();
   });
   waClient.on("ready", () => {
+    if (waPronto) return;
     waPronto = true;
     send("wa-pronto", true);
     log("WhatsApp pronto.");
