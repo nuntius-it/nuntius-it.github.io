@@ -73,6 +73,25 @@ input:focus { outline: 2px solid var(--blu); }
 .qr-box { text-align: center; padding: 1rem; }
 .qr-box img { width: 280px; height: 280px; background: #fff; border: 1px solid var(--bordo); border-radius: 12px; }
 
+.sync-box {
+  text-align: center;
+  padding: 1.2rem;
+  background: var(--carta);
+  border: 1px solid var(--bordo);
+  border-radius: 12px;
+  margin: 0.5rem 0;
+}
+.spinner {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 0.6rem;
+  border: 4px solid var(--bordo);
+  border-top-color: var(--terracotta);
+  border-radius: 50%;
+  animation: gira 0.9s linear infinite;
+}
+@keyframes gira { to { transform: rotate(360deg); } }
+
 .head-row { display: flex; justify-content: space-between; align-items: center; }
 
 .campagna {

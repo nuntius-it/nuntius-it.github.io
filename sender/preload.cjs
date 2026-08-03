@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld("nuntius", {
   invioDiProva: (numero, testo) => ipcRenderer.invoke("invio-di-prova", { numero, testo }),
   onLog: (cb) => ipcRenderer.on("log", (_e, msg) => cb(msg)),
   onQr: (cb) => ipcRenderer.on("wa-qr", (_e, dataUrl) => cb(dataUrl)),
+  onAutenticato: (cb) => ipcRenderer.on("wa-autenticato", () => cb()),
+  onCaricamento: (cb) => ipcRenderer.on("wa-caricamento", (_e, p) => cb(p)),
   onWaPronto: (cb) => ipcRenderer.on("wa-pronto", (_e, pronto) => cb(pronto)),
   onProgresso: (cb) => ipcRenderer.on("progresso", (_e, p) => cb(p)),
 });

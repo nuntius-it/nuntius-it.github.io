@@ -31,7 +31,19 @@ window.nuntius.onQr((dataUrl) => {
   $("#qr").src = dataUrl;
   $("#qr").hidden = false;
   $("#qr-attesa").hidden = true;
+  $("#sync-box").hidden = true;
 });
+
+// Dopo la scansione (o al riavvio con sessione ricordata) WhatsApp deve
+// caricare le chat: la prima volta può metterci minuti. Mostriamo cosa succede.
+function mostraSincronizzazione(percent) {
+  $("#qr").hidden = true;
+  $("#qr-attesa").hidden = true;
+  $("#sync-box").hidden = false;
+  $("#sync-perc").textContent = Number.isFinite(percent) ? ` (${percent}%)` : "";
+}
+window.nuntius.onAutenticato(() => mostraSincronizzazione());
+window.nuntius.onCaricamento(({ percent }) => mostraSincronizzazione(percent));
 
 window.nuntius.onWaPronto((pronto) => {
   if (pronto) {

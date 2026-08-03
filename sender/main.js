@@ -108,7 +108,13 @@ async function avviaWhatsApp() {
     send("wa-qr", dataUrl);
     log("In attesa della scansione del QR code…");
   });
-  waClient.on("authenticated", () => log("WhatsApp autenticato."));
+  waClient.on("loading_screen", (percent, message) => {
+    send("wa-caricamento", { percent: Number(percent) || 0, message });
+  });
+  waClient.on("authenticated", () => {
+    send("wa-autenticato", true);
+    log("WhatsApp autenticato.");
+  });
   waClient.on("ready", () => {
     waPronto = true;
     send("wa-pronto", true);
