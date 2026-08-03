@@ -1,7 +1,7 @@
 {
   "name": "nuntius-sender",
   "productName": "Nuntius Sender",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Invio degli annunci WhatsApp preparati con Nuntius",
   "main": "main.js",
   "author": "Nuntius",

@@ -87,6 +87,43 @@ function trovaChromeIncluso() {
   return null;
 }
 
+// Tamponi per l'aggiornamento di WhatsApp Web di fine luglio 2026
+// (wwebjs/whatsapp-web.js#201862): l'iniezione di window.WWebJS a volte non si
+// completa (l'invio fallirebbe con "Cannot read properties of undefined (reading
+// 'getChat')") e su MsgKey la proprietà _serialized è stata minificata in $1
+// (l'invio fallirebbe subito dopo la consegna). Sicura da ripetere; va richiamata
+// prima di ogni invio perché un ricaricamento della pagina di WhatsApp la azzera.
+async function assicuraIniezione() {
+  const pagina = waClient?.pupPage;
+  if (!pagina) return false;
+  try {
+    const giaIniettato = await pagina.evaluate(
+      () => typeof window.WWebJS?.getChat === "function"
+    );
+    if (!giaIniettato) {
+      const { LoadUtils } = require("whatsapp-web.js/src/util/Injected/Utils.js");
+      await pagina.evaluate(LoadUtils);
+      log("Componenti di invio ricaricati.");
+    }
+    await pagina.evaluate(() => {
+      const proto = window.require("WAWebMsgKey")?.prototype;
+      if (proto && !("_serialized" in proto)) {
+        Object.defineProperty(proto, "_serialized", {
+          get() {
+            return this.$1;
+          },
+          configurable: true,
+        });
+      }
+    });
+    return await pagina.evaluate(
+      () => typeof window.WWebJS?.getChat === "function"
+    );
+  } catch {
+    return false;
+  }
+}
+
 // Da fine luglio 2026 WhatsApp Web a volte non emette più l'evento "ready"
 // (wwebjs/whatsapp-web.js#201864): se dopo l'autenticazione lo stato risulta
 // CONNECTED per due controlli di fila, il collegamento viene considerato pronto.
@@ -102,7 +139,7 @@ function avviaControlloPronto() {
       stato = await waClient.getState();
     } catch {}
     volteConnesso = stato === "CONNECTED" ? volteConnesso + 1 : 0;
-    if (volteConnesso >= 2) {
+    if (volteConnesso >= 2 && (await assicuraIniezione()) && !waPronto) {
       clearInterval(controllo);
       waPronto = true;
       send("wa-pronto", true);
@@ -143,7 +180,9 @@ async function avviaWhatsApp() {
     log("WhatsApp autenticato.");
     avviaControlloPronto();
   });
-  waClient.on("ready", () => {
+  waClient.on("ready", async () => {
+    if (waPronto) return;
+    await assicuraIniezione();
     if (waPronto) return;
     waPronto = true;
     send("wa-pronto", true);
@@ -161,6 +200,7 @@ async function avviaWhatsApp() {
 }
 
 async function inviaSingolo(numeroE164, testo) {
+  await assicuraIniezione();
   const cifre = numeroE164.replace(/\D/g, "");
   const numberId = await waClient.getNumberId(cifre);
   if (!numberId) return { esito: "non_whatsapp" };
