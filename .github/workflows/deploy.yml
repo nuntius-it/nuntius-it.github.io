@@ -24,7 +24,9 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: webapp/package-lock.json
-      - run: npm ci
+      # --ignore-scripts come in release.yml: prebuild e optional dependencies
+      # bastano, la compilazione implicita di better-sqlite3 è fragile in CI.
+      - run: npm ci --ignore-scripts
         working-directory: webapp
       - run: npm test
         working-directory: webapp

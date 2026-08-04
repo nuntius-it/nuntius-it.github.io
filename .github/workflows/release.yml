@@ -54,8 +54,10 @@ jobs:
       - run: npx @puppeteer/browsers install chrome@stable --platform ${{ matrix.chrome_platform }} --path ${{ github.workspace }}/sender/chrome-cache
       # La UI dell'app è la webapp: dipendenze, test e build Vite, poi lo
       # script "ui" copia webapp/dist in sender/renderer-app (shell bash anche
-      # su Windows per rm/cp).
-      - run: npm ci
+      # su Windows per rm/cp). Anche qui --ignore-scripts: better-sqlite3 (dev,
+      # per i test) usa i prebuild; esbuild e rollup portano i binari come
+      # optional dependencies e non hanno bisogno degli script di install.
+      - run: npm ci --ignore-scripts
         working-directory: webapp
       - run: npm test
         working-directory: webapp
