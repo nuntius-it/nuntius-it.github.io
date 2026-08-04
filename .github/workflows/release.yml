@@ -19,11 +19,13 @@ jobs:
         include:
           - os: macos-latest
             build_args: --mac --arm64
+            chrome_platform: mac_arm
           - os: macos-latest
             build_args: --mac --x64
             chrome_platform: mac
           - os: windows-latest
             build_args: --win
+            chrome_platform: win64
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -37,18 +39,19 @@ jobs:
           cache-dependency-path: |
             sender/package-lock.json
             webapp/package-lock.json
+      # Niente script di install: better-sqlite3 usa i prebuild N-API inclusi
+      # nel pacchetto (la compilazione implicita con node-gyp è fragile sui
+      # runner: Python senza distutils, Visual Studio 2026 non riconosciuto).
+      # Il binario di Electron, che di norma arriva dal suo postinstall, viene
+      # scaricato a parte con npm rebuild.
+      - run: npm ci --ignore-scripts
+      - run: npm rebuild electron
       # Chrome di puppeteer va scaricato dentro il progetto, così electron-builder
       # lo include nell'installer (extraResources): sui computer delle parrocchie
-      # non esiste la cache ~/.cache/puppeteer. Per la build cross-arch il download
-      # automatico (che seguirebbe l'arch del runner) è disattivato e sostituito
-      # dal passo esplicito con @puppeteer/browsers.
-      - run: npm ci
-        env:
-          PUPPETEER_CACHE_DIR: ${{ github.workspace }}/sender/chrome-cache
-          PUPPETEER_SKIP_CHROME_HEADLESS_SHELL_DOWNLOAD: "true"
-          PUPPETEER_SKIP_DOWNLOAD: ${{ matrix.chrome_platform && 'true' || '' }}
-      - if: matrix.chrome_platform
-        run: npx @puppeteer/browsers install chrome@stable --platform ${{ matrix.chrome_platform }} --path ${{ github.workspace }}/sender/chrome-cache
+      # non esiste la cache ~/.cache/puppeteer. Con --ignore-scripts il download
+      # automatico non parte mai: si usa sempre il passo esplicito, con la
+      # piattaforma dalla matrice (mac_arm / mac / win64).
+      - run: npx @puppeteer/browsers install chrome@stable --platform ${{ matrix.chrome_platform }} --path ${{ github.workspace }}/sender/chrome-cache
       # La UI dell'app è la webapp: dipendenze, test e build Vite, poi lo
       # script "ui" copia webapp/dist in sender/renderer-app (shell bash anche
       # su Windows per rm/cp).

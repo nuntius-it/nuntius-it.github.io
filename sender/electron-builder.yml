@@ -10,9 +10,13 @@ files:
   - db/**
   - renderer-app/**
   - package.json
+# Niente ricompilazione dei moduli nativi: better-sqlite3 porta i prebuild
+# N-API nel pacchetto npm, validi sia per Node sia per Electron.
+npmRebuild: false
 asarUnpack:
   - "**/node_modules/whatsapp-web.js/**"
   - "**/node_modules/puppeteer*/**"
+  - "**/node_modules/better-sqlite3/**"
 extraResources:
   - from: chrome-cache
     to: chrome-cache
