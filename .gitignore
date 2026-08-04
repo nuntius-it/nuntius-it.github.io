@@ -15,3 +15,6 @@ dati/
 
 # Note operative interne (non pubblicare)
 CLAUDE.md
+
+# UI copiata dalla build della webapp (npm run ui in sender/)
+sender/renderer-app/

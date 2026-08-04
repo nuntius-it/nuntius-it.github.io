@@ -10,9 +10,6 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.49.0"
-  },
   "devDependencies": {
     "better-sqlite3": "^13.0.2",
     "vite": "^7.0.0",

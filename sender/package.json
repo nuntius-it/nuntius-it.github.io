@@ -1,19 +1,20 @@
 {
   "name": "nuntius-sender",
-  "productName": "Nuntius Sender",
+  "productName": "Nuntius",
   "version": "0.1.4",
-  "description": "Invio degli annunci WhatsApp preparati con Nuntius",
+  "description": "Annunci WhatsApp per le parrocchie: gestione gruppi, liste e invio",
   "main": "main.js",
   "author": "Nuntius",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
+    "dev": "NUNTIUS_DEV_URL=http://localhost:5173 electron .",
+    "ui": "npm --prefix ../webapp run build && rm -rf renderer-app && cp -R ../webapp/dist renderer-app",
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",
     "dist:win": "electron-builder --win"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.0",
     "better-sqlite3": "^13.0.2",
     "electron-updater": "^6.3.9",
     "qrcode": "^1.5.4",

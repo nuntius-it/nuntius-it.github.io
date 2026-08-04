@@ -1,5 +1,6 @@
+# appId invariato dal vecchio "Nuntius Sender" per non rompere l'auto-update.
 appId: io.github.nuntius-it.sender
-productName: Nuntius Sender
+productName: Nuntius
 directories:
   output: dist
 files:
@@ -7,7 +8,7 @@ files:
   - preload.cjs
   - config.js
   - db/**
-  - renderer/**
+  - renderer-app/**
   - package.json
 asarUnpack:
   - "**/node_modules/whatsapp-web.js/**"

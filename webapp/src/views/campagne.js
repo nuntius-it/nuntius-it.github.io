@@ -10,7 +10,7 @@ export async function viewCampagne(container) {
     container.innerHTML = emptyState(
       "Nessun annuncio ancora",
       `Un annuncio è un messaggio WhatsApp da inviare a un gruppo o a una lista.
-       Si prepara da qui, si invia dal computer della parrocchia con Nuntius Sender.`,
+       Si prepara qui e si invia quando WhatsApp è collegato (scheda Invio).`,
       `<a class="btn" href="#/nuova-campagna">Prepara un annuncio</a>`
     );
     return;

@@ -1,11 +1,9 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("nuntius", {
+  db: (metodo, args) => ipcRenderer.invoke("db", metodo, args),
   statoIniziale: () => ipcRenderer.invoke("stato-iniziale"),
-  login: (email, password) => ipcRenderer.invoke("login", { email, password }),
-  logout: () => ipcRenderer.invoke("logout"),
   waAvvia: () => ipcRenderer.invoke("wa-avvia"),
-  campagnePronte: () => ipcRenderer.invoke("campagne-pronte"),
   campagnaInvia: (id) => ipcRenderer.invoke("campagna-invia", id),
   invioDiProva: (numero, testo) => ipcRenderer.invoke("invio-di-prova", { numero, testo }),
   onLog: (cb) => ipcRenderer.on("log", (_e, msg) => cb(msg)),

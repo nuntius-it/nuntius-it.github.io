@@ -106,8 +106,8 @@ export async function viewNuovaCampagna(container) {
             <button type="submit" class="btn btn--ghost" data-stato="bozza"
               ${stato.sorgente ? "" : "disabled"}>Salva come bozza</button>
           </div>
-          <p class="hint">Gli annunci "pronti" compaiono in <strong>Nuntius Sender</strong>
-          sul computer della parrocchia, da cui parte l'invio vero e proprio.</p>
+          <p class="hint">Gli annunci "pronti" si inviano dalla loro pagina con
+          <strong>Invia ora</strong>, quando WhatsApp è collegato (scheda Invio).</p>
         </form>
       </section>`;
 

@@ -1,4 +1,5 @@
 import { fetchCampagna, cambiaStatoCampagna, eliminaCampagna } from "../lib/db.js";
+import { statoWa, osservaProgresso } from "../lib/wa.js";
 import { STATI_CAMPAGNA, ESITI_INVIO } from "../lib/campagna.js";
 import { waToHtml } from "../lib/waFormat.js";
 import { esc, chip, statCard, spinner } from "../ui/html.js";
@@ -37,13 +38,20 @@ export async function viewCampagna(container, { id }) {
           ${campagna.stato === "bozza"
             ? `<button class="btn" id="pronta">Segna pronta per l'invio</button>`
             : ""}
+          ${["pronta", "in_invio"].includes(campagna.stato) && statoWa.pronto && conta("in_coda")
+            ? `<button class="btn" id="invia">
+                 ${campagna.stato === "in_invio" ? "Riprendi l'invio" : "Invia ora"}
+                 (${conta("in_coda")})</button>`
+            : ""}
           ${campagna.stato === "pronta"
             ? `<button class="btn btn--ghost" id="bozza">Riporta in bozza</button>`
             : ""}
         </div>
-        ${campagna.stato === "pronta"
-          ? `<p class="hint">Ora apri <strong>Nuntius Sender</strong> sul computer della
-             parrocchia: troverai questo annuncio pronto da inviare.</p>`
+        <p class="error" id="invia-errore" hidden></p>
+        <progress id="invia-prog" hidden max="1" value="0"></progress>
+        ${["pronta", "in_invio"].includes(campagna.stato) && !statoWa.pronto
+          ? `<p class="hint">Per inviare, collega WhatsApp dalla scheda
+             <a href="#/whatsapp">Invio</a>.</p>`
           : ""}
       </div>
     </div>
@@ -74,6 +82,27 @@ export async function viewCampagna(container, { id }) {
       <button class="btn btn--danger" id="del">Elimina "${esc(campagna.titolo)}"</button>
     </details>`;
 
+  container.querySelector("#invia")?.addEventListener("click", async (e) => {
+    const b = e.currentTarget;
+    b.disabled = true;
+    b.textContent = "Invio in corso…";
+    const prog = container.querySelector("#invia-prog");
+    prog.hidden = false;
+    osservaProgresso(({ campagnaId, fatto, totale }) => {
+      if (campagnaId !== id) return;
+      prog.max = totale || 1;
+      prog.value = fatto;
+    });
+    const res = await window.nuntius.campagnaInvia(id);
+    osservaProgresso(null);
+    if (!container.isConnected) return;
+    await viewCampagna(container, { id });
+    if (!res.ok) {
+      const err = container.querySelector("#invia-errore");
+      err.textContent = res.errore;
+      err.hidden = false;
+    }
+  });
   container.querySelector("#pronta")?.addEventListener("click", async () => {
     await cambiaStatoCampagna(id, "pronta");
     viewCampagna(container, { id });

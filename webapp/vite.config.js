@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 
-// Il sito è pubblicato come root site (nuntius-it.github.io), quindi base "/".
+// Percorsi relativi: la UI è caricata da Electron con loadFile (file://),
+// dove i percorsi assoluti "/..." non funzionano.
 export default defineConfig({
-  base: "/",
+  base: "./",
 });
