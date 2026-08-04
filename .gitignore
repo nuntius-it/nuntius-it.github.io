@@ -12,3 +12,6 @@ sender/.wwebjs_cache/
 # Dati reali (export gestionali, elenchi): mai nel repo
 *.xlsx
 dati/
+
+# Note operative interne (non pubblicare)
+CLAUDE.md
