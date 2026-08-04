@@ -25,7 +25,10 @@ export function osservaProgresso(fn) { suProgresso = fn ?? (() => {}); }
 export function avviaWa() {
   if (!window.nuntius || statoWa.avviato) return;
   statoWa.avviato = true;
-  window.nuntius.waAvvia();
+  window.nuntius.waAvvia().then((res) => {
+    // Su errore (es. avvio di Chrome fallito) un prossimo avviaWa può riprovare.
+    if (res && !res.ok) statoWa.avviato = false;
+  });
 }
 
 if (window.nuntius) {

@@ -1,4 +1,4 @@
-name: Release Nuntius Sender
+name: Release Nuntius
 
 on:
   push:
@@ -34,7 +34,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: sender/package-lock.json
+          cache-dependency-path: |
+            sender/package-lock.json
+            webapp/package-lock.json
       # Chrome di puppeteer va scaricato dentro il progetto, così electron-builder
       # lo include nell'installer (extraResources): sui computer delle parrocchie
       # non esiste la cache ~/.cache/puppeteer. Per la build cross-arch il download
@@ -47,6 +49,15 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: ${{ matrix.chrome_platform && 'true' || '' }}
       - if: matrix.chrome_platform
         run: npx @puppeteer/browsers install chrome@stable --platform ${{ matrix.chrome_platform }} --path ${{ github.workspace }}/sender/chrome-cache
+      # La UI dell'app è la webapp: dipendenze, test e build Vite, poi lo
+      # script "ui" copia webapp/dist in sender/renderer-app (shell bash anche
+      # su Windows per rm/cp).
+      - run: npm ci
+        working-directory: webapp
+      - run: npm test
+        working-directory: webapp
+      - run: npm run ui
+        shell: bash
       - run: npx electron-builder ${{ matrix.build_args }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -189,7 +189,15 @@ async function avviaWhatsApp() {
   });
 
   log("Avvio di WhatsApp in corso (può richiedere qualche secondo)…");
-  await waClient.initialize();
+  try {
+    await waClient.initialize();
+  } catch (err) {
+    // Senza questo, waClient resterebbe assegnato ma rotto e ogni "wa-avvia"
+    // successivo verrebbe ignorato fino al riavvio dell'app.
+    try { await waClient.destroy(); } catch {}
+    waClient = null;
+    throw err;
+  }
 }
 
 async function inviaSingolo(numeroE164, testo) {

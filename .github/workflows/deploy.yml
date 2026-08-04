@@ -1,4 +1,4 @@
-name: Test e deploy su GitHub Pages
+name: Test e landing su GitHub Pages
 
 on:
   push:
@@ -17,9 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: webapp
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,14 +25,14 @@ jobs:
           cache: npm
           cache-dependency-path: webapp/package-lock.json
       - run: npm ci
+        working-directory: webapp
       - run: npm test
-      - run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        working-directory: webapp
+      # La webapp vive dentro l'app desktop (sender/renderer-app): su Pages
+      # resta solo la pagina di presentazione e download.
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: webapp/dist
+          path: sito
 
   deploy:
     needs: build

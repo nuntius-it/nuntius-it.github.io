@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1f3a5f" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Karla:wght@400;700&display=swap" rel="stylesheet" />
+  <title>Nuntius — Annunci alle comunità parrocchiali</title>
+  <meta name="description" content="Nuntius invia gli annunci WhatsApp della parrocchia ai gruppi del catechismo. Gratuito, semplice, con i dati che restano sul computer della parrocchia." />
+  <style>
+    :root {
+      --blu: #1f3a5f;
+      --terracotta: #b3542e;
+      --carta: #f5f2ec;
+      --bordo: #d8d1c3;
+      --testo: #2b2b2b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--carta);
+      color: var(--testo);
+      font-family: "Karla", "Segoe UI", system-ui, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; color: var(--blu); }
+    main { max-width: 680px; margin: 0 auto; padding: 3rem 1.2rem 4rem; }
+    .testata { text-align: center; margin-bottom: 2.5rem; }
+    .testata img { width: 84px; height: 84px; }
+    .testata h1 { font-size: 3rem; margin: 0.4rem 0 0; }
+    .tagline { font-style: italic; opacity: 0.75; margin-top: 0.2rem; }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem;
+      box-shadow: 0 2px 12px rgb(31 58 95 / 0.08);
+      margin-bottom: 1.4rem;
+    }
+    .card h2 { margin-top: 0; }
+    .scarica { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1rem 0 0.4rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.3rem;
+      border-radius: 999px;
+      background: var(--blu);
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .btn:hover { background: #2a4d7d; }
+    .btn[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+    .hint { font-size: 0.92rem; opacity: 0.75; }
+    .hint a { color: var(--terracotta); }
+    footer { text-align: center; padding: 1.5rem; font-size: 0.9rem; opacity: 0.65; }
+    footer em { font-family: "Fraunces", Georgia, serif; }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="testata">
+      <img src="icon.svg" alt="" />
+      <h1>Nuntius</h1>
+      <p class="tagline">Annunci alle comunità parrocchiali</p>
+    </header>
+
+    <section class="card">
+      <h2>Cos'è</h2>
+      <p>Nuntius aiuta le parrocchie a mandare gli avvisi su WhatsApp ai gruppi
+      del catechismo e delle altre attività: si importa l'elenco del gruppo dal
+      gestionale UNIO, si prepara l'annuncio e si invia dal WhatsApp della
+      parrocchia, con un messaggio personale a ogni famiglia.</p>
+      <p>È gratuito e pensato per chi non è pratico di computer. <strong>I dati
+      delle famiglie restano sul computer della parrocchia</strong>: niente
+      account, niente archivi su internet.</p>
+    </section>
+
+    <section class="card">
+      <h2>Scarica l'app</h2>
+      <p>Per il computer della parrocchia (Windows o Mac):</p>
+      <div class="scarica" id="scarica">
+        <a class="btn" data-so="win" aria-disabled="true" href="#">Windows</a>
+        <a class="btn" data-so="mac-arm64" aria-disabled="true" href="#">Mac (Apple Silicon)</a>
+        <a class="btn" data-so="mac-x64" aria-disabled="true" href="#">Mac (Intel)</a>
+      </div>
+      <p class="hint">Oppure guarda
+      <a href="https://github.com/nuntius-it/nuntius-it.github.io/releases">tutte le versioni</a>.
+      Su Mac, al primo avvio: Impostazioni → Privacy e Sicurezza → «Apri comunque».</p>
+    </section>
+
+    <section class="card">
+      <h2>Per cominciare</h2>
+      <p>L'installazione guidata chiede solo il nome della parrocchia; poi si
+      collega WhatsApp inquadrando un codice QR col telefono della parrocchia.
+      La guida passo-passo con le immagini viene consegnata alle parrocchie
+      insieme all'app.</p>
+    </section>
+  </main>
+  <footer>Nuntius · <em>nuntius, -ii: messaggero</em></footer>
+
+  <script>
+    // Riempie i pulsanti con i file dell'ultima release pubblicata.
+    fetch("https://api.github.com/repos/nuntius-it/nuntius-it.github.io/releases/latest")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((rel) => {
+        const perSo = {
+          "win": (n) => n.endsWith(".exe"),
+          "mac-arm64": (n) => n.endsWith("-arm64.dmg"),
+          "mac-x64": (n) => n.endsWith("-x64.dmg"),
+        };
+        for (const a of document.querySelectorAll("#scarica a")) {
+          const asset = rel.assets.find((x) => perSo[a.dataset.so](x.name));
+          if (asset) {
+            a.href = asset.browser_download_url;
+            a.removeAttribute("aria-disabled");
+            a.title = asset.name;
+          }
+        }
+      })
+      .catch(() => {
+        // Senza API resta il link "tutte le versioni".
+        for (const a of document.querySelectorAll("#scarica a")) {
+          a.href = "https://github.com/nuntius-it/nuntius-it.github.io/releases/latest";
+          a.removeAttribute("aria-disabled");
+        }
+      });
+  </script>
+</body>
+</html>
