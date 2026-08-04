@@ -108,7 +108,9 @@ describe("dati locali", () => {
     const [letta] = d.fetchPersone();
     expect(letta.email).toBe("marta@example.org");
     expect(letta.campo_ignoto).toBeUndefined();
-    expect(letta.updated_at >= p.updated_at).toBe(true);
+    // updated_at viene riscritto dall'orologio JS (quello di creazione dal
+    // clock di SQLite): niente confronti d'ordine tra i due, solo il formato.
+    expect(letta.updated_at).toMatch(/^\d{4}-\d{2}-\d{2}T.*Z$/);
     expect(letta.appartenenze).toEqual([]);
 
     const { gruppoId } = d.importaGruppo({ nome: "Coro", anno: null, attivita: null, voci: [] });
