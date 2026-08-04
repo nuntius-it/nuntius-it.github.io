@@ -6,6 +6,7 @@ files:
   - main.js
   - preload.cjs
   - config.js
+  - db/**
   - renderer/**
   - package.json
 asarUnpack:
