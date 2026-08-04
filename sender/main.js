@@ -1,9 +1,13 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const QRCode = require("qrcode");
 const { DELAY_MIN_SEC, DELAY_MAX_SEC } = require("./config.js");
 const { creaDb } = require("./db/db.js");
+const {
+  backupAutomatico, serveBackupOggi, scriviBackup, cartellaBackup,
+  verificaBackup, sostituisciDb,
+} = require("./backup.js");
 
 let win;
 let dati = null; // API dati locale (db/db.js), aperta in whenReady
@@ -22,6 +26,23 @@ if (process.env.NUNTIUS_USERDATA) {
   const nuova = app.getPath("userData");
   if (fs.existsSync(vecchia) && !fs.existsSync(nuova)) fs.renameSync(vecchia, nuova);
 }
+
+const percorsoDb = () => path.join(app.getPath("userData"), "nuntius.db");
+
+// ---------- Istanza unica ----------
+// Due istanze insieme (es. app installata + npm start) si contenderebbero
+// database e sessione WhatsApp: la seconda esce e riporta davanti la prima.
+// Il lucchetto vale per cartella dati, quindi NUNTIUS_USERDATA resta isolata.
+const istanzaUnica = app.requestSingleInstanceLock();
+if (!istanzaUnica) {
+  app.quit();
+}
+app.on("second-instance", () => {
+  if (win) {
+    if (win.isMinimized()) win.restore();
+    win.focus();
+  }
+});
 
 function send(canale, payload) {
   if (win && !win.isDestroyed()) win.webContents.send(canale, payload);
@@ -196,6 +217,78 @@ ipcMain.handle("db", (_e, metodo, args) => {
   }
 });
 
+// ---------- IPC: copie di sicurezza ----------
+
+ipcMain.handle("backup-info", () => ({
+  ultimo: dati?.getImpostazione("ultimo_backup") ?? null,
+  cartella: cartellaBackup(app.getPath("userData")),
+}));
+
+ipcMain.handle("backup-esporta", async () => {
+  const { canceled, filePath } = await dialog.showSaveDialog(win, {
+    title: "Esporta una copia dei dati",
+    defaultPath: `nuntius-backup-${new Date().toLocaleDateString("sv")}.db`,
+    filters: [{ name: "Copia di Nuntius", extensions: ["db"] }],
+  });
+  if (canceled || !filePath) return { ok: true, annullato: true };
+  try {
+    await dati.db.backup(filePath);
+    log(`Copia dei dati esportata in ${filePath}.`);
+    return { ok: true, percorso: filePath };
+  } catch (err) {
+    return { ok: false, errore: err.message };
+  }
+});
+
+ipcMain.handle("backup-ripristina", async () => {
+  if (invioInCorso) return { ok: false, errore: "C'è un invio in corso: attendi che finisca." };
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    title: "Ripristina da una copia",
+    properties: ["openFile"],
+    filters: [{ name: "Copia di Nuntius", extensions: ["db"] }],
+  });
+  if (canceled || !filePaths.length) return { ok: true, annullato: true };
+  const file = filePaths[0];
+
+  const verifica = verificaBackup(require("better-sqlite3"), file);
+  if (!verifica.ok) return { ok: false, errore: verifica.errore };
+
+  const { response } = await dialog.showMessageBox(win, {
+    type: "warning",
+    title: "Ripristina da una copia",
+    message: "Sostituire tutti i dati con quelli della copia?",
+    detail:
+      "I dati attuali (persone, gruppi, liste, annunci e diario degli invii) verranno " +
+      "sostituiti da quelli del file scelto. Prima della sostituzione viene salvata " +
+      "una copia di sicurezza automatica dei dati attuali.",
+    buttons: ["Sostituisci i dati", "Annulla"],
+    defaultId: 1,
+    cancelId: 1,
+  });
+  if (response !== 0) return { ok: true, annullato: true };
+
+  try {
+    if (dati.getProfilo()) {
+      await scriviBackup(
+        dati.db,
+        cartellaBackup(app.getPath("userData")),
+        `pre-ripristino-${new Date().toISOString().replace(/[:.]/g, "-")}.db`
+      );
+    }
+    dati.chiudi();
+    dati = null;
+    sostituisciDb(percorsoDb(), file);
+    log("Dati ripristinati dalla copia.");
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, errore: err.message };
+  } finally {
+    // Riapre in ogni caso (anche dopo un errore, sul database rimasto);
+    // se la copia era di una versione più vecchia, migra() la aggiorna.
+    if (!dati) dati = creaDb(require("better-sqlite3"), percorsoDb());
+  }
+});
+
 // ---------- IPC: WhatsApp e invio ----------
 
 ipcMain.handle("stato-iniziale", () => ({
@@ -299,10 +392,17 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  if (!istanzaUnica) return; // sta già uscendo: non aprire finestra né database
   const userData = app.getPath("userData");
   fs.mkdirSync(userData, { recursive: true });
-  dati = creaDb(require("better-sqlite3"), path.join(userData, "nuntius.db"));
+  dati = creaDb(require("better-sqlite3"), percorsoDb());
   createWindow();
+  // Rete di sicurezza se l'ultima chiusura non ha salvato (crash, blackout).
+  if (serveBackupOggi(dati)) {
+    backupAutomatico(dati, userData)
+      .then((file) => file && log("Copia di sicurezza giornaliera aggiornata."))
+      .catch((err) => log(`Backup automatico non riuscito: ${err.message}`));
+  }
   if (app.isPackaged) {
     try {
       const { autoUpdater } = require("electron-updater");
@@ -313,6 +413,7 @@ app.whenReady().then(() => {
 
 app.on("window-all-closed", async () => {
   try { await waClient?.destroy(); } catch {}
+  try { if (dati) await backupAutomatico(dati, app.getPath("userData")); } catch {}
   try { dati?.chiudi(); } catch {}
   app.quit();
 });

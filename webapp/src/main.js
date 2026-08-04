@@ -12,6 +12,7 @@ import { viewCampagne } from "./views/campagne.js";
 import { viewNuovaCampagna } from "./views/nuovaCampagna.js";
 import { viewCampagna } from "./views/campagna.js";
 import { viewWhatsApp } from "./views/whatsapp.js";
+import { viewBackup } from "./views/backup.js";
 
 const app = document.querySelector("#app");
 
@@ -28,6 +29,7 @@ const routes = [
   { re: /^#\/nuova-campagna$/, view: viewNuovaCampagna, nav: "campagne" },
   { re: /^#\/campagna\/([\w-]+)$/, view: viewCampagna, nav: "campagne" },
   { re: /^#\/whatsapp$/, view: viewWhatsApp, nav: "whatsapp" },
+  { re: /^#\/backup$/, view: viewBackup, nav: "backup" },
 ];
 
 function matchRoute() {
@@ -53,6 +55,7 @@ function renderShell(nomeParrocchia, navAttiva) {
         <a href="#/campagne" class="${navAttiva === "campagne" ? "on" : ""}">Annunci</a>
         <a href="#/importa" class="${navAttiva === "importa" ? "on" : ""}">Importa</a>
         <a href="#/whatsapp" class="${navAttiva === "whatsapp" ? "on" : ""}">Invio</a>
+        <a href="#/backup" class="${navAttiva === "backup" ? "on" : ""}">Backup</a>
       </nav>
       <div class="who">
         <span>${esc(nomeParrocchia)}</span>
