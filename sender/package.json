@@ -23,5 +23,8 @@
   "devDependencies": {
     "electron": "^37.10.3",
     "electron-builder": "^25.1.8"
+  },
+  "overrides": {
+    "node-gyp": "^11.4.2"
   }
 }
