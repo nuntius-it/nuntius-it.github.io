@@ -18,3 +18,4 @@ CLAUDE.md
 
 # UI copiata dalla build della webapp (npm run ui in sender/)
 sender/renderer-app/
+sender/chrome-cache/
