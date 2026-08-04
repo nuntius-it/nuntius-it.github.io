@@ -288,6 +288,73 @@ input:focus { outline: 2px solid var(--blu); border-color: var(--blu); }
 
 .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1rem; }
 
+/* ---------- Modale ---------- */
+
+.modale-sfondo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(31 42 58 / 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modale {
+  background: var(--carta);
+  border: 1px solid var(--bordo);
+  border-radius: 16px;
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.3);
+}
+.modale-testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.3rem 0;
+}
+.modale-testata h3 { margin: 0; }
+.modale-chiudi {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--blu);
+  padding: 0 0.2rem;
+}
+.modale-corpo { padding: 1rem 1.3rem 1.3rem; }
+.modale-corpo .actions { margin-top: 0.2rem; }
+
+.cerca-risultati {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  max-height: 45vh;
+  overflow: auto;
+}
+.cerca-voce {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid var(--bordo);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  text-align: left;
+}
+.cerca-voce:hover { border-color: var(--blu); }
+
+.cella-azioni { white-space: nowrap; }
+.cella-azioni .btn-link { margin-right: 0.6rem; }
+.page-sub .btn-link { font-size: 0.85rem; }
+
 /* ---------- Import ---------- */
 
 .import-guide ol { margin: 0.4rem 0 0; padding-left: 1.3rem; }

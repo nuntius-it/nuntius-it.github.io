@@ -82,6 +82,48 @@ export async function fetchPersoneMinime() {
   return data;
 }
 
+export async function creaPersona(campi) {
+  const { parrocchiaId } = await getProfilo();
+  const { data, error } = await supabase
+    .from("persone")
+    .insert({ ...campi, parrocchia_id: parrocchiaId })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function aggiornaPersona(id, campi) {
+  const { error } = await supabase
+    .from("persone")
+    .update({ ...campi, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function aggiornaGruppo(id, campi) {
+  const { error } = await supabase.from("gruppi").update(campi).eq("id", id);
+  if (error) throw error;
+}
+
+export async function aggiungiAlGruppo(gruppoId, personaId, tipo = "Partecipante") {
+  const { parrocchiaId } = await getProfilo();
+  const { error } = await supabase.from("appartenenze").upsert(
+    { gruppo_id: gruppoId, persona_id: personaId, parrocchia_id: parrocchiaId, tipo },
+    { onConflict: "persona_id,gruppo_id" }
+  );
+  if (error) throw error;
+}
+
+export async function rimuoviDalGruppo(gruppoId, personaId) {
+  const { error } = await supabase
+    .from("appartenenze")
+    .delete()
+    .eq("gruppo_id", gruppoId)
+    .eq("persona_id", personaId);
+  if (error) throw error;
+}
+
 // ---------- Import ----------
 
 /**
@@ -178,6 +220,24 @@ export async function fetchLista(id) {
     .map((r) => r.persone)
     .sort((a, b) => a.cognome.localeCompare(b.cognome, "it"));
   return { lista, persone };
+}
+
+export async function aggiornaLista(id, campi) {
+  const { error } = await supabase.from("liste").update(campi).eq("id", id);
+  if (error) throw error;
+}
+
+export async function aggiungiALista(listaId, personaIds) {
+  const { parrocchiaId } = await getProfilo();
+  const { error } = await supabase.from("liste_persone").upsert(
+    personaIds.map((pid) => ({
+      lista_id: listaId,
+      persona_id: pid,
+      parrocchia_id: parrocchiaId,
+    })),
+    { onConflict: "lista_id,persona_id" }
+  );
+  if (error) throw error;
 }
 
 export async function rimuoviDaLista(listaId, personaId) {
